@@ -61,6 +61,18 @@ namespace JAIMaker_2.JAIM
         }
     }
 
+    public enum JEnvelopeVectorMode
+    {
+        Linear = 0,
+        Square = 1,
+        SquareRoot = 2,
+        SampleCell = 3,
+
+        Loop = 13,
+        Hold = 14,
+        Stop = 15,
+    }
+
     public class JEnvelopeVector
     {
         public ushort Mode;
@@ -267,6 +279,14 @@ namespace JAIMaker_2.JAIM
 
         new public bool Percussion;
 
+        public JKeyRegionv1 getKeyRegion(int key)
+        {
+            for (int i = 0; i < keys.Length; i++)
+                if (keys[i].BaseKey >= key)
+                    return keys[i];
+            return null;
+        }
+
         private void loadFromStream(BeBinaryReader reader, int seekbase)
         {
 
@@ -457,6 +477,15 @@ namespace JAIMaker_2.JAIM
 
         public byte BaseKey;
         public JVelocityRegionv1[] Velocities;
+
+        public JVelocityRegionv1 getVelocity(int key)
+        {
+            for (int i = 0; i < Velocities.Length; i++)
+                if (Velocities[i].Velocity >= key)
+                    return Velocities[i];
+            return null;
+        }
+
         private void loadFromStream(BeBinaryReader reader, int seekbase)
         {
             BaseKey = reader.ReadByte();

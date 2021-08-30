@@ -14,38 +14,59 @@ namespace JAIMaker_2.JAIDSP2
     {
 
         public static SYNCPROC globalLoopProc;
-        public static bool Init()
+        public static string Device;
+
+        public static bool Init(string DeviceInfo = "none")
         {
+
+            Console.WriteLine("===JAIDSP INIT START===");
+
+            Console.Write("Regi....");
             #region dumb obfuscation for email and registration key, just to prevent bots.
             byte obfu = 0xDA;
-            byte[] eml = new byte[]
-            {
-                0xBE, 0xBB, 0xB4,0xBF,0x9A,0xA2,0xBB,0xA3,0xA8,0xF4,0xBD,0xBB,
-            };
-
-            byte[] rkey = new byte[]
-            {
-                0xE8,0x82,0xE3,0xE9,0xE8,0xE9,0xEB,0xE8,0xEE,0xE9,0xE9,
-            };
+            byte[] eml = new byte[] {0xBE, 0xBB, 0xB4,0xBF,0x9A,0xA2,0xBB,0xA3,0xA8,0xF4,0xBD,0xBB};
+            byte[] rkey = new byte[] {0xE8,0x82,0xE3,0xE9,0xE8,0xE9,0xEB,0xE8,0xEE,0xE9,0xE9};
             for (int i = 0; i < eml.Length; i++)
-            {
                 eml[i] ^= (obfu);
-            }
-            for (int i = 0; i < rkey.Length; i++)
-            {
+
+            for (int i = 0; i < rkey.Length; i++) 
                 rkey[i] ^= (obfu);
-            }
+            
             #endregion
             Un4seen.Bass.BassNet.Registration(Encoding.ASCII.GetString(eml), Encoding.ASCII.GetString(rkey));
+            Console.WriteLine("OK!");
             Bass.BASS_Init(-1, 44100, BASSInit.BASS_DEVICE_DEFAULT, IntPtr.Zero); // Initialize audio engine
             BassFx.LoadMe();
-            BASS_DEVICEINFO info = new BASS_DEVICEINFO(); // Print device info. 
-            for (int n = 0; Bass.BASS_GetDeviceInfo(n, info); n++)
-            {
-                //Console.WriteLine(info.ToString());
-            }
             globalLoopProc = new SYNCPROC(DoLoop);
+            changeDevice(DeviceInfo);
+            Console.WriteLine("===JAIDSP INIT END===");
             return true;
+        }
+
+        public static bool changeDevice(string nameMatch)
+        {
+            var oldDevice = Device;
+            var sL = GetDeviceList();
+            for (int i = 0; i < sL.Length; i++)
+                if (sL[i] == nameMatch)
+                {
+                    Bass.BASS_SetDevice(i);
+                    Device = sL[i];
+                    Console.WriteLine($"JAIDSP: Changing device to '{sL[i]}'");
+                    return true;
+                }
+            return false;     
+        }
+
+        public static string[] GetDeviceList()
+        {
+            BASS_DEVICEINFO info = new BASS_DEVICEINFO(); // Print device info. 
+            int n = 0;
+            for (n = 0; Bass.BASS_GetDeviceInfo(n, info); n++) ;
+            string[] devices = new string[n];
+            for (int i = 0; Bass.BASS_GetDeviceInfo(i, info); i++)
+                devices[i] = info.name;
+            return devices;
         }
         public static bool Deinit() // free's engine thread
         {
@@ -75,14 +96,12 @@ namespace JAIMaker_2.JAIDSP2
                 looped = true,
             };
             rt.generateFileBuffer();
-            //File.WriteAllBytes("test/" + v1.ToString() + ".wav", rt.fileBuffer) ;
             return rt;
         }
 
         public static JAIDSPSoundBuffer SetupSoundBuffer(byte[] pcm, int cn, int sr, int bs)
         {
             v1++;
-            
             var rt = new JAIDSPSoundBuffer()
             {
                 format = new JAIDSPFormat()
@@ -94,7 +113,6 @@ namespace JAIMaker_2.JAIDSP2
                 looped = false,
             };
             rt.generateFileBuffer();
-            //File.WriteAllBytes("test/" + v1.ToString() + ".wav", rt.fileBuffer);
             return rt;
         }
     }

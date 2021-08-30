@@ -229,6 +229,7 @@ namespace JAIMaker_2.JAIM
         public short LastSample;
         public short PenultimateSample;
 
+
         private void loadFromStream(BeBinaryReader wsysReader)
         {
             wsysReader.ReadByte();
