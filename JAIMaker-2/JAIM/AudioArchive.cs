@@ -70,9 +70,6 @@ namespace JAIMaker_2.JAIM
                 }
                 bankOffset = 0;
             }
-
-
-
         }
 
         private void countSections(BeBinaryReader aafReader)

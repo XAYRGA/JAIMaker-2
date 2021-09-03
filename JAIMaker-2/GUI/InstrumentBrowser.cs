@@ -11,18 +11,18 @@ using static ImGuiNET.ImGuiNative;
 
 namespace JAIMaker_2.GUI
 {
-    class InstrumentBrowser
+    class InstrumentBrowser : Window
     {
 
         public string[] bankList;
         public string[] progList;
+        private int remapSelectIndex;
+        private int remapCreateIndex;
+        private int remapCreateNote;
 
-
-        int BankSelection = 0;
-        int ProgSelection = 0;
-        public void init()
+        public override void init()
         {
-
+            Title = "Instrument Browser";           
         }
 
         private void rebuildLists()
@@ -38,13 +38,13 @@ namespace JAIMaker_2.GUI
         {
             if (JAIMAKER.AAF == null)
                 return;
-            var bnk = JAIMAKER.AAF.InstrumentBanks[BankSelection];
+            var bnk = JAIMAKER.AAF.InstrumentBanks[JAIMAKER.Project.SelectedBank];
             progList = new string[bnk.instruments.Length];
             for (int i = 0; i < progList.Length; i++)
                 progList[i] =  bnk.instruments[i]==null ? "(empty)" : $"Program {i}";
         }
 
-        public void update()
+        public override void draw()
         {
             var AAF = JAIMAKER.AAF;
             if (AAF==null)
@@ -52,14 +52,45 @@ namespace JAIMaker_2.GUI
                 ImGui.Text("No Audio Archive loaded.");
                 return;
             }
-
             rebuildLists();
             rebuildProgramLists();
+            ImGui.ListBox("Banks", ref JAIMAKER.Project.SelectedBank, bankList, bankList.Length);
+            ImGui.ListBox("Programs", ref JAIMAKER.Project.SelectedInstrument, progList, progList.Length);
+            JAIMAKER.Project.SelectedBankID = (int)JAIMAKER.AAF.InstrumentBanks[JAIMAKER.Project.SelectedBank].globalID;
+
+            ImGui.Separator();
+            Dictionary<int, Dictionary<int, int>> RemapBank;
+            Dictionary<int, int> RemapProg;
+            if (!JAIMAKER.Project.ProgramRemap.TryGetValue(JAIMAKER.Project.SelectedBank, out RemapBank))
+                RemapBank = (JAIMAKER.Project.ProgramRemap[JAIMAKER.Project.SelectedBank] = new Dictionary<int, Dictionary<int, int>>());      
+
+            if (!RemapBank.TryGetValue(JAIMAKER.Project.SelectedInstrument, out RemapProg))
+            {
+                if (ImGui.Button("Create Note Remapping"))
+                    RemapBank[JAIMAKER.Project.SelectedInstrument] = new Dictionary<int, int>();
+                return;
+            }
+
+            if (ImGui.Button("Delete Note Remapping"))
+                RemapBank.Remove(JAIMAKER.Project.SelectedInstrument);
 
             ImGui.Columns(2);
-            ImGui.ListBox("Instruments", ref BankSelection, bankList, bankList.Length);
+            ImGui.InputInt("Source Note", ref remapCreateIndex);
             ImGui.NextColumn();
-            ImGui.ListBox("Instruments2", ref ProgSelection, progList, progList.Length);
+            ImGui.InputInt("Dest Note", ref remapCreateNote);
+
+            if (ImGui.Button("Add Remap"))
+            { 
+                RemapProg[remapCreateIndex] = remapCreateNote;
+            }
+
+            ImGui.Columns(1);
+
+            var keys = RemapProg.Keys.Select(x => x.ToString() + " -> " + RemapProg[x] ).ToArray();
+
+            ImGui.ListBox("Remappings", ref remapSelectIndex, keys, keys.Length);
+
         }
+
     }
 }

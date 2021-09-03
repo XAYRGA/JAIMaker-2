@@ -28,6 +28,7 @@ namespace JAIMaker_2.GUI
         private Sdl2Window _window;
         private GraphicsDevice _gd;
         private CommandList _cl;
+        private Texture JAIMLogo; 
 
         private ImGuiController _controller;
         private Vector3 _clearColor = new Vector3(0.0f, 0.0f, 0.0f);
@@ -59,8 +60,6 @@ namespace JAIMaker_2.GUI
 
             _cl = _gd.ResourceFactory.CreateCommandList();
             _controller = new ImGuiController(_gd, _gd.MainSwapchain.Framebuffer.OutputDescription, _window.Width, _window.Height);
-
-
 
 
             var style = ImGui.GetStyle();
@@ -131,6 +130,15 @@ namespace JAIMaker_2.GUI
             _controller.Update(1f / 60f, snapshot); // Feed the input events to our ImGui controller, which passes them through to ImGui.
 
             ImGui.BeginMainMenuBar();
+
+            if (ImGui.BeginMenu("JAIMaker 2        "))
+            {
+                
+                if (ImGui.MenuItem("Save"))
+                    JAIMAKER.Project.save();
+                ImGui.EndMenu();
+            }
+           
 
             if (ImGui.BeginMenu("Windows"))
             {

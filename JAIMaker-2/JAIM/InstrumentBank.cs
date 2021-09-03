@@ -57,7 +57,7 @@ namespace JAIMaker_2.JAIM
             wr.Write(new byte[0x14]);
             wr.Write(BANK);
             for (int i = 0; i < instruments.Length; i++)
-                wr.Write(instruments[i] == null ? 0 : instruments[i].mBaseAddress);                
+                wr.Write(instruments[i] == null ? 0 : instruments[i].mBaseAddress);      
         }
     }
 

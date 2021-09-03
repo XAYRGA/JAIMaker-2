@@ -248,7 +248,11 @@
     <Compile Include="beio\Error.cs" />
     <Compile Include="beio\Reinterpret.cs" />
     <Compile Include="GUI\GuiController.cs" />
+    <Compile Include="GUI\MidiImportControl.cs" />
+    <Compile Include="GUI\MidiRemapper.cs" />
     <Compile Include="GUI\InstrumentBrowser.cs" />
+    <Compile Include="GUI\PianoBoy.cs" />
+    <Compile Include="GUI\JGFileBrowser.cs" />
     <Compile Include="JAIDSP2\JAIDSP.cs" />
     <Compile Include="JAIDSP2\JAIDSPFormat.cs" />
     <Compile Include="JAIDSP2\JAIDSPSoundBuffer.cs" />
@@ -309,6 +313,7 @@
     <Content Include="bass_fx.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="GUI\res\JAIMaker2.png" />
     <EmbeddedResource Include="Shaders\HLSL\imgui-frag.hlsl" />
     <EmbeddedResource Include="Shaders\HLSL\imgui-vertex.hlsl" />
   </ItemGroup>

@@ -24,6 +24,8 @@ namespace JAIMaker_2
         
         public void save()
         {
+            if (!File.Exists(SAVE_FILE))
+                return;
             Directory.CreateDirectory("_jaimaker");
             var FHnd = File.Open(SAVE_FILE, FileMode.OpenOrCreate, FileAccess.ReadWrite);
             var Wrt = new BeBinaryWriter(FHnd);
@@ -36,7 +38,7 @@ namespace JAIMaker_2
         {
             try
             {
-                var FHnd = File.Open(SAVE_FILE, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                var FHnd = File.Open(SAVE_FILE, FileMode.Open, FileAccess.ReadWrite);
                 var Wrt = new BeBinaryReader(FHnd);
                 var w = new BsonReader(Wrt);
                 JsonSerializer ser = new JsonSerializer();
