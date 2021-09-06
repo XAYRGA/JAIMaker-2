@@ -271,8 +271,8 @@ namespace JAIMaker_2.JAIM
             var header = wsysReader.ReadUInt32();
             if (header != WSYS)
                 throw new FormatException($"{header:X}!={WSYS:X}");
-            Id = wsysReader.ReadUInt32();
             Size = wsysReader.ReadUInt32();
+            Id = wsysReader.ReadUInt32();
             UppwerWaveID = wsysReader.ReadUInt32(); // PADDING
             var WINFOffset = wsysReader.ReadUInt32();
             var WBCTOffset = wsysReader.ReadUInt32();

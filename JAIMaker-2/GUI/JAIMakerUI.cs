@@ -47,7 +47,7 @@ namespace JAIMaker_2.GUI
         public void init()
         {
             VeldridStartup.CreateWindowAndGraphicsDevice(
-            new WindowCreateInfo(50, 50, 1024, 768, WindowState.Normal, "JAIMaker 2"),
+            new WindowCreateInfo(50, 50, 1024, 1024, WindowState.Normal, "JAIMaker 2"),
             new GraphicsDeviceOptions(true, null, true),
             out _window,
             out _gd);
@@ -133,7 +133,6 @@ namespace JAIMaker_2.GUI
 
             if (ImGui.BeginMenu("JAIMaker 2        "))
             {
-                
                 if (ImGui.MenuItem("Save"))
                     JAIMAKER.Project.save();
                 ImGui.EndMenu();
@@ -145,7 +144,6 @@ namespace JAIMaker_2.GUI
                 foreach (KeyValuePair<string, Window> winDict in windows)
                     if (ImGui.MenuItem(winDict.Value.Title))
                         winDict.Value.Visible = !winDict.Value.Visible;
-
                 ImGui.EndMenu();
             }
             ImGui.EndMainMenuBar();
@@ -154,16 +152,14 @@ namespace JAIMaker_2.GUI
 
             ImGui.DockSpaceOverViewport();
             //for (int i = 0; i < windows.Count; i++)
-            foreach (KeyValuePair<string, Window> winDict in windows)
-            {
-               
+            foreach (KeyValuePair<string, Window> winDict in windows)            
                 if (winDict.Value.Visible)
                 {
                     ImGui.Begin(winDict.Value.Title);
                     winDict.Value.draw();
                     ImGui.End();
                 }
-            }
+            
 
             _cl.Begin();
             _cl.SetFramebuffer(_gd.MainSwapchain.Framebuffer);

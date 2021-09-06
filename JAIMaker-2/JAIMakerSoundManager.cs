@@ -20,8 +20,8 @@ namespace JAIMaker_2
     {
         private Dictionary<string, BinaryReader> awHandles = new Dictionary<string, BinaryReader>();
         private Dictionary<int, Dictionary<int, JAIWaveContainer>> bankMap = new Dictionary<int, Dictionary<int, JAIWaveContainer>>();
-
         private AudioArchive AAF;
+
 
         public JAIMakerSoundManager(AudioArchive AAFData)
         {
@@ -53,7 +53,7 @@ namespace JAIMaker_2
             {
                 var cWS = AAF.WaveSystems[i];
                 var currentMap = new Dictionary<int, JAIWaveContainer>();
-                bankMap[i] = currentMap;
+                bankMap[(int)cWS.Id] = currentMap;
                 for (int gI = 0; gI < cWS.Groups.Length; gI++)
                 {
                     var grp = cWS.Groups[gI];
@@ -70,7 +70,6 @@ namespace JAIMaker_2
                         };
                      
                     }
-                    //Console.WriteLine(bankMap[i].Count());
                 }
             }
             Console.WriteLine("JAIMakerSoundManager::buildMap end WSYS wave tablization...");
@@ -81,10 +80,16 @@ namespace JAIMaker_2
         {
             Dictionary<int, JAIWaveContainer> wsysTree;
             if (!bankMap.TryGetValue(wsysID, out wsysTree))
+            {
+                Console.WriteLine($"Failed to lookup WSYS {wsysID}");
                 return null;
+            }
             JAIWaveContainer wave;
             if (!wsysTree.TryGetValue(WaveID, out wave))
+            {
+                Console.WriteLine($"Failed to lookup WaveID {wsysID}, {WaveID}");
                 return null;
+            }
             if (wave.buffer != null)
                 return wave;
             var group = wave.parent.ArchivePath;

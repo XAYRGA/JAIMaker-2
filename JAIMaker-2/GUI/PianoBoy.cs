@@ -97,12 +97,17 @@ namespace JAIMaker_2.GUI
             }
             ImGui.Dummy(new Vector2(0, 60f));
             ImGui.Text($"Last Key {lastPressedKey}");
+            ImGui.Text($"DSP Tree Depth { JAIDSP2.JAIDSPVoiceManager.treeDepth}");
+            if (ImGui.Button("Destroy DSP tree"))
+                JAIDSPVoiceManager.destroyAll();
+            ImGui.SliderInt("DSP Emulation Ticks", ref JAIMAKER.DSPTickRate, 0, 48000);
+
         }
 
         private JAIDSPVoice[] voices = new JAIDSPVoice[88];
         private void keyTrigger(int key, bool state)
         {
-            Console.WriteLine($"Piano key pressed {key} - {state}");
+            //Console.WriteLine($"Piano key pressed {key} - {state}");
 
             var bnk = JAIMAKER.AAF.InstrumentBanks[JAIMAKER.Project.SelectedBank];
             var ins = bnk.instruments[JAIMAKER.Project.SelectedInstrument];
@@ -113,7 +118,7 @@ namespace JAIMaker_2.GUI
             var keyR = insD.getKeyRegion(key);
             if (keyR == null)
                 return;
-            var velR = keyR.getVelocity(126);
+            var velR = keyR.getVelocity(127);
             if (velR == null)
                 return;
 
@@ -129,7 +134,13 @@ namespace JAIMaker_2.GUI
             } else
             {
                 var snd = JAIMAKER.SoundManager.loadSound((byte)velR.WSYSID, (short)velR.WaveID);
-                var voice = new JAIDSPVoice(snd.buffer, null);
+                if (snd==null || snd.buffer==null)
+                {
+                    Console.WriteLine($"PianoBoy::keyTrigger failed to create sound buffer for bnk.{velR.WSYSID} wav.{velR.WaveID}");
+                    return;
+                }
+                var voice = new JAIDSPVoice(snd.buffer,insD);
+                JAIDSPVoiceManager.addVoice(voice);
                 voice.play();
                 voices[key] = voice;
                 voice.setPitchMatrix(0, (float)Math.Pow(2, (key - snd.descriptor.BaseKey) / 12f) * insD.Pitch * velR.Pitch);

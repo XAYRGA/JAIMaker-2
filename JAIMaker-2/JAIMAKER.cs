@@ -15,6 +15,10 @@ namespace JAIMaker_2
         public static JAIMakerSettings Settings;
         public static JAIMakerSoundManager SoundManager;
         public static GUI.WindowManager WindowManager;
+        public static int DSPTickRate = 120;
+ 
+        static int currentDSPTicks = 0;
+        static DateTime TickSystemStart = DateTime.Now;      
 
         static void Main()
         {
@@ -41,7 +45,7 @@ namespace JAIMaker_2
 
 
 
-            var W = File.OpenRead("Jaiinit.aaf");
+            var W = File.OpenRead("jaiinit.aaf");
             var wR = new Be.IO.BeBinaryReader(W);
             var nr = new JAIM.AudioArchive();
             nr.loadFromStream(wR);
@@ -58,9 +62,26 @@ namespace JAIMaker_2
             WindowManager.addWindow("REMAPPER", new GUI.MidiRemapper());
             WindowManager.addWindow("IMPORTER", new GUI.MidiImportControl());
 
+
+
             while (true)
             {
+
+                var time_elapsed = DateTime.Now - TickSystemStart;
+                var target_dsp_ticks = time_elapsed.TotalSeconds * DSPTickRate;
+
                 WindowManager.update();
+
+                // We're 2 seconds behind, probably for a good reason. 
+                if ( Math.Abs(target_dsp_ticks - currentDSPTicks) > DSPTickRate * 2)
+                    currentDSPTicks = (int)target_dsp_ticks;
+
+                while (target_dsp_ticks > currentDSPTicks)
+                {
+            
+                    JAIDSP2.JAIDSPVoiceManager.updateAll();
+                    currentDSPTicks++;
+                }
             }
 
             Console.ReadLine();

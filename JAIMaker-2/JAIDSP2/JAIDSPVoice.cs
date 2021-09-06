@@ -4,13 +4,76 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using JAIMaker_2.JAIM;
-using Un4seen.Bass; 
+using Un4seen.Bass;
 
 namespace JAIMaker_2.JAIDSP2
 {
-  
-    class JAIDSPVoice
+    public static class JAIDSPVoiceManager
     {
+
+        public static int treeDepth = 0;
+        private static JAIDSPVoice head;
+        private static JAIDSPVoice tail;
+
+        public static void addVoice(JAIDSPVoice voi)
+        {
+            if (head == null)
+                head = voi;
+            if (tail == null)
+                tail = voi;
+            if (tail != voi)
+            {
+                voi.prev = tail;
+                tail.next = voi;
+                tail = voi;
+            }
+        }
+
+        public static void removeVoice(JAIDSPVoice voi)
+        {
+            if (voi == head)
+                head = voi.next;
+            if (voi == tail)
+                tail = voi.prev;
+            // Should collapse this entry out of the list, hopefully. 
+            if (voi.prev != null)
+                voi.prev.next = voi.next;
+            if (voi.next != null)
+                voi.next.prev = voi.prev;
+        }
+
+        public static void updateAll() // Called 48000 times a second.
+        {
+            treeDepth = 0;
+            var current = head;
+            while (current != null)
+            {
+                current.update();
+                if (current.Destroy)
+                    removeVoice(current);
+                current = current.next;
+                treeDepth++;
+            }
+        }
+
+        public static void destroyAll()
+        {
+            var current = head;
+            while (current!=null) { 
+                if (!current.Destroy)
+                    current.destroy();
+
+                removeVoice(current);
+                current = current.next;
+            }
+        }
+    }
+  
+    public class JAIDSPVoice
+    {
+        internal JAIDSPVoice next;
+        internal JAIDSPVoice prev;
+
         private const int PITCHMATRIX_SIZE = 3;
         private const int VOLMATRIX_SIZE = 3;
 
@@ -97,10 +160,11 @@ namespace JAIMaker_2.JAIDSP2
             Volume = 1;
             _volMatrix[slot] = value;
             for (int i = 0; i < VOLMATRIX_SIZE; i++)
-                Pitch *= _volMatrix[i];
+                Volume *= _volMatrix[i];
             Bass.BASS_ChannelSetAttribute(voiceHandle, BASSAttribute.BASS_ATTRIB_VOL, Volume);
         }
 
+       
         public void update()
         {
             if (Oscillator != null) {

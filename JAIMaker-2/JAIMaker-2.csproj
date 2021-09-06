@@ -38,6 +38,9 @@
   <PropertyGroup>
     <StartupObject />
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>palmtree_jlz_icon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Bass.Net">
       <HintPath>..\..\JAISEQXLJA\JaiSeqX\JaiSeqXLJA\bin\Bass.Net.dll</HintPath>
@@ -253,6 +256,7 @@
     <Compile Include="GUI\InstrumentBrowser.cs" />
     <Compile Include="GUI\PianoBoy.cs" />
     <Compile Include="GUI\JGFileBrowser.cs" />
+    <Compile Include="Formats\INAFile.cs" />
     <Compile Include="JAIDSP2\JAIDSP.cs" />
     <Compile Include="JAIDSP2\JAIDSPFormat.cs" />
     <Compile Include="JAIDSP2\JAIDSPSoundBuffer.cs" />
@@ -265,7 +269,6 @@
     <Compile Include="JAIM\InstrumentBank.cs" />
     <Compile Include="JAIM\WaveSystem.cs" />
     <Compile Include="JAIM\util.cs" />
-    <Compile Include="PianoRoller.cs" />
     <Compile Include="JAIMAKER.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GUI\JAIMakerUI.cs" />
@@ -314,6 +317,8 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="GUI\res\JAIMaker2.png" />
+    <Content Include="GUI\res\palmtree.jpg" />
+    <Content Include="palmtree_jlz_icon.ico" />
     <EmbeddedResource Include="Shaders\HLSL\imgui-frag.hlsl" />
     <EmbeddedResource Include="Shaders\HLSL\imgui-vertex.hlsl" />
   </ItemGroup>

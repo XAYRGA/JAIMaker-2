@@ -22,6 +22,7 @@ namespace JAIMaker_2
 
     class JAIMakerFile
     {
+        public float SaveFileVersion = 1.0f;
         public int SelectedInstrument = 0;
         public int SelectedBank = 0;
         public int SelectedBankID = 0;
@@ -31,6 +32,7 @@ namespace JAIMaker_2
         public JAIProgramRemap[] MidiOverrides = new JAIProgramRemap[16];
         public Dictionary<int,Dictionary<int,Dictionary<int,int>>> ProgramRemap = new Dictionary<int, Dictionary<int, Dictionary<int, int>>>();
         public byte[] midiSequence;
+        public static Dictionary<int, Dictionary<int, string>> BankNames = new Dictionary<int, Dictionary<int, string>>();
 
         public JAIMakerFile()
         {
