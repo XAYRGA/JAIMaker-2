@@ -35,14 +35,13 @@ namespace JAIMaker_2.JAIDSP2
                 head = voi.next;
             if (voi == tail)
                 tail = voi.prev;
-            // Should collapse this entry out of the list, hopefully. 
             if (voi.prev != null)
                 voi.prev.next = voi.next;
             if (voi.next != null)
                 voi.next.prev = voi.prev;
         }
 
-        public static void updateAll() // Called 48000 times a second.
+        public static void updateAll()
         {
             treeDepth = 0;
             var current = head;
@@ -69,6 +68,7 @@ namespace JAIMaker_2.JAIDSP2
         }
     }
   
+
     public class JAIDSPVoice
     {
         internal JAIDSPVoice next;
@@ -113,8 +113,11 @@ namespace JAIMaker_2.JAIDSP2
                 return;
 
             var StdIns = ((JStandardInstrumentv1)Ins);
-            if (StdIns.oscillatorA!=null)
+            if (StdIns.oscillatorA != null)
+            {
                 Oscillator = new JAIDSPOscillator(StdIns.oscillatorA);
+                setVolMatrix(2, 0);
+            }
         } 
 
         public void play()

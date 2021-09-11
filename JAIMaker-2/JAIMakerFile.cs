@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using System.IO;
 using Be.IO;
 
+
 namespace JAIMaker_2
 {
 
@@ -23,13 +24,16 @@ namespace JAIMaker_2
     class JAIMakerFile
     {
         public float SaveFileVersion = 1.0f;
+        public float sorry = 0f;
         public int SelectedInstrument = 0;
         public int SelectedBank = 0;
         public int SelectedBankID = 0;
+        public string JAIInitPath = "";
+        public string JAIBankPath = "";
         public bool UseMidiOverride = true;
         public bool UseMidiRemap = false;
         public JAIProgramRemap[] MidiRemap = new JAIProgramRemap[128];
-        public JAIProgramRemap[] MidiOverrides = new JAIProgramRemap[16];
+        public JAIProgramRemap[] MidiOverrides = new JAIProgramRemap[32];
         public Dictionary<int,Dictionary<int,Dictionary<int,int>>> ProgramRemap = new Dictionary<int, Dictionary<int, Dictionary<int, int>>>();
         public byte[] midiSequence;
         public static Dictionary<int, Dictionary<int, string>> BankNames = new Dictionary<int, Dictionary<int, string>>();
@@ -38,9 +42,8 @@ namespace JAIMaker_2
         {
             for (int i = 0; i < 128; i++)
                 MidiRemap[i] = new JAIProgramRemap();
-            for (int i = 0; i < 16; i++)
+            for (int i = 0; i < 32; i++)
                 MidiOverrides[i] = new JAIProgramRemap();
-          
         }
 
         public void save()

@@ -17,6 +17,7 @@ namespace JAIMaker_2.GUI
     {
         public string Title;
         public bool Visible = true;
+        public bool Destroy = false;
 
         public abstract void init();
         public abstract void draw();
@@ -44,10 +45,13 @@ namespace JAIMaker_2.GUI
             win.init();
             Console.WriteLine($"Added window {name}");
         }
+
+        private Stack<string> destoyQueue = new Stack<string>();
+      
         public void init()
         {
             VeldridStartup.CreateWindowAndGraphicsDevice(
-            new WindowCreateInfo(50, 50, 1024, 1024, WindowState.Normal, "JAIMaker 2"),
+            new WindowCreateInfo(50, 50, 1920,1080, WindowState.Normal, "JAIMaker 2"),
             new GraphicsDeviceOptions(true, null, true),
             out _window,
             out _gd);
@@ -131,8 +135,10 @@ namespace JAIMaker_2.GUI
 
             ImGui.BeginMainMenuBar();
 
-            if (ImGui.BeginMenu("JAIMaker 2        "))
+            if (ImGui.BeginMenu("JAIMaker 2  File"))
             {
+                if (ImGui.MenuItem("Open AAF"))
+                    JAIMAKER.WindowManager.addWindow("AAFIMPORT", new GUI.OpenAAFMenu());
                 if (ImGui.MenuItem("Save"))
                     JAIMAKER.Project.save();
                 ImGui.EndMenu();
@@ -157,9 +163,13 @@ namespace JAIMaker_2.GUI
                 {
                     ImGui.Begin(winDict.Value.Title);
                     winDict.Value.draw();
+                    if (winDict.Value.Destroy)
+                        destoyQueue.Push(winDict.Key);
                     ImGui.End();
                 }
-            
+
+            while (destoyQueue.Count > 0)
+                windows.Remove(destoyQueue.Pop());
 
             _cl.Begin();
             _cl.SetFramebuffer(_gd.MainSwapchain.Framebuffer);

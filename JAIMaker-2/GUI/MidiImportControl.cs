@@ -7,13 +7,19 @@ using Veldrid;
 using Veldrid.Sdl2;
 using Veldrid.StartupUtilities;
 using ImGuiNET;
+using System.IO;
 using static ImGuiNET.ImGuiNative;
+using MidiSharp;
+
 
 namespace JAIMaker_2.GUI
 {
     class MidiImportControl : Window
     {
 
+        FileBrowser midiBrowser;
+        string error = "";
+        string midiPath = "";
         public override void init()
         {
             Title = "MIDI Import";           
@@ -21,11 +27,53 @@ namespace JAIMaker_2.GUI
 
         public override void draw()
         {
+            if (midiBrowser != null)
+            {
+                midiBrowser.draw();
+                if (midiBrowser.Destroy)
+                {
+                    try
+                    {
+                        var midData = File.ReadAllBytes(midiBrowser.getSelectedFileFullPath());
+                        JAIMAKER.Project.midiSequence = midData;
+                        JAIMAKER.MIDI = MidiSequence.Open(new MemoryStream(midData));
+                        JAIMAKER.Project.midiSequence = midData;
+                        error = "";
+                    }
+                    catch (Exception E)
+                    {
+                        error = E.ToString();
+                    }
+                    midiBrowser = null;
+                }
+                return;
+            }
+
+
+
+            if (error.Length > 1)
+                ImGui.TextColored(new System.Numerics.Vector4(255, 0, 0, 255), error);
+
+            if (ImGui.Button("Open MIDI"))
+                midiBrowser = new FileBrowser(ref midiPath, "*.mid");
+
+
+          
             var AAF = JAIMAKER.AAF;
-            if (AAF==null)
+            if (AAF == null)
             {
                 ImGui.Text("No Audio Archive loaded.");
                 return;
+            }
+
+
+            if (JAIMAKER.MIDI == null)
+            {
+                ImGui.Text("No MIDI File loaded.");
+                return;
+            } else
+            {
+                ImGui.TextColored(new System.Numerics.Vector4(0, 255, 0, 255), "MIDI Loaded");
             }
 
             ImGui.Checkbox("Channel Program Assignment", ref JAIMAKER.Project.UseMidiOverride);
@@ -37,8 +85,8 @@ namespace JAIMaker_2.GUI
 
             ImGui.Text("Track");
             ImGui.SetColumnWidth(0, 100f);
-       
-            for (int i = 0; i < 16; i++)
+
+            for (int i = 0; i < JAIMAKER.MIDI.Tracks.Count; i++)
             {
                 ImGui.Text($"Track {i}");
                 ImGui.Dummy(new System.Numerics.Vector2(0.0f, 6f));
@@ -47,24 +95,24 @@ namespace JAIMaker_2.GUI
 
             ImGui.Text("Bank");
             ImGui.Dummy(new System.Numerics.Vector2(0.0f, 1f));
-            for (int i = 0; i < 16; i++)
+            for (int i = 0; i < JAIMAKER.MIDI.Tracks.Count; i++)
             {
                 ImGui.InputInt($"Bnk##{i}", ref JAIMAKER.Project.MidiOverrides[i].bank);
                 ImGui.Dummy(new System.Numerics.Vector2(0.0f, 0.3f));
             }
-         
+
 
             ImGui.NextColumn();
             ImGui.Text("Program");
             ImGui.Separator();
-            for (int i = 0; i < 16; i++)
+            for (int i = 0; i < JAIMAKER.MIDI.Tracks.Count; i++)
             {
                 ImGui.InputInt($"Prg##{i}", ref JAIMAKER.Project.MidiOverrides[i].program);
                 ImGui.Dummy(new System.Numerics.Vector2(0.0f, 0.3f));
 
             }
             ImGui.NextColumn();
-            for (int i=0; i < 16; i++)
+            for (int i = 0; i < JAIMAKER.MIDI.Tracks.Count; i++)
             {
                 if (ImGui.Button($"Set Selected##{i}"))
                 {
@@ -73,10 +121,6 @@ namespace JAIMaker_2.GUI
                 }
                 ImGui.Separator();
             }
-
-
-           
         }
-
     }
 }

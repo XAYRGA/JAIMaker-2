@@ -57,9 +57,11 @@ namespace JAIMaker_2.JAIDSP2
                 return;
             delay-=Osc.Rate;
             var dist = targetValue - prevValue;
-            var perc = (float)(delayMax - delay) / delayMax;
+            var perc = delayMax > 0 ? (float)(delayMax - delay) / delayMax : 0; // 0/0 is infinity, oops
+            
             if (perc > 1)
                 perc = 1;
+
             if (delay < 0)
                 if (Vector._next != null)
                     swapVector(Vector._next);
@@ -69,14 +71,11 @@ namespace JAIMaker_2.JAIDSP2
 
             if (delay < 0 && Vector.Mode < 0xE && Vector._next == null)
                 panic();
-                
-            //Console.WriteLine($"Vector Mode {Vector.Mode} {delay}");
+
             if (Vector.Mode != 0x0E)
-            {
-                
+            { 
                 var preVal = (int)(prevValue + (dist * perc));
                 __value = preVal < 0 ? 0 : preVal;
-                Console.WriteLine(__value);
             }
         }
 
@@ -90,7 +89,6 @@ namespace JAIMaker_2.JAIDSP2
         {
             if (vector.Mode != 0x0E)
             {
-                Console.WriteLine($"Swapping vector with value {__value}, prev {(Vector==null ? 0 : Vector.Value)}, next {vector.Value}");
                 prevValue = __value;
                 targetValue = vector.Value;
             }

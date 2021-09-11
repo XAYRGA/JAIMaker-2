@@ -18,13 +18,23 @@ namespace JAIMaker_2.GUI
     {
 
 
-        bool[] keyPressedCurrentFrame = new bool[88];
-        bool[] keyPressedLastFrame = new bool[88];
+        bool[] keyPressedCurrentFrame = new bool[0x88];
+        bool[] keyPressedLastFrame = new bool[0x88];
         int lastPressedKey = 0;
         int pressedBlackKey = -1;
+
+
+        private static uint[] regionColors = new uint[0x7F];
         public override void init()
         {
+            var w = new Random();
+            
+           
             Title = "Piano";           
+
+            for (int i=0; i < 0x7F; i++)
+                regionColors[i] = (uint)w.Next(0x00, 0xFFFFFF) | 0xFF000000u;
+            regionColors[0] = 0xFFFFFFFF;
         }
 
         private bool d2DBoxCollideNoTangent(Vector2 Min, Vector2 Max, Vector2 Point)
@@ -36,14 +46,41 @@ namespace JAIMaker_2.GUI
 
         public override void draw()
         {
+            if (JAIMAKER.AAF == null)
+                return;
             var DrawList = ImGui.GetWindowDrawList();
             var WindowPos = ImGui.GetWindowPos();
             var TotalOffset = 0;
             var KeyPos = 0;
+            var currentRegion = 0;
+
+
+            JAIM.JStandardInstrumentv1 insD = null;
+            JAIM.JKeyRegionv1 keyR = null; 
+
+            if (JAIMAKER.AAF!=null)
+            {
+                var bnk = JAIMAKER.AAF.InstrumentBanks[JAIMAKER.Project.SelectedBank];
+                var ins = bnk.instruments[JAIMAKER.Project.SelectedInstrument];
+                if (ins == null)
+                    return;
+                insD = (JAIM.JStandardInstrumentv1)ins;
+                keyR = insD.getKeyRegion(0);    
+             }
 
           
-            for (int i=0; i< 88; i++)
+            for (int i=0; i< 0x88; i++)
             {
+                if (insD!=null)
+                {
+                    var nextKeyR = insD.getKeyRegion(i);
+                    if (keyR!=nextKeyR)
+                    {
+                        currentRegion++;
+                        keyR = nextKeyR;
+                    }
+                }
+
                 if (KeyPos == 13)
                     KeyPos = 1;
                 if (KeyPos == 1 || KeyPos==4 || KeyPos==6 || KeyPos==9 || KeyPos == 11 || KeyPos==13)
@@ -60,10 +97,13 @@ namespace JAIMaker_2.GUI
                 else 
                 {
                     keyPressedCurrentFrame[i] = false;
-                    var wb = 0xFFFFFFFF;
+                    var wb = regionColors[currentRegion];
+
+                    if (JAIMAKER.MidDevice.keyState[i])
+                        wb = 0xFF00FF00;
                     if (d2DBoxCollideNoTangent(WindowPos + new Vector2(TotalOffset * 15, 30), WindowPos + new Vector2(TotalOffset * 15 + 15, 90), ImGui.GetMousePos()) && ImGui.IsMouseDown(ImGuiMouseButton.Left)  && pressedBlackKey==-1)
                     {
-                        wb = 0xFF0101FF;
+                        wb = 0xFF0000FF;
                         keyPressedCurrentFrame[i] = true;
                         lastPressedKey = i;
                     }
@@ -77,11 +117,11 @@ namespace JAIMaker_2.GUI
             KeyPos = 0;
             TotalOffset = 0;
 
-            for (int i = 0; i < 88; i++)
+            for (int i = 0; i < 0x88; i++)
             {
                 if (KeyPos == 13)
                     KeyPos = 1;
-                var wb = keyPressedCurrentFrame[i] ? 0xFF0000FF : 0xFF010101;
+                var wb = (keyPressedCurrentFrame[i] || JAIMAKER.MidDevice.keyState[i] ) ? 0xFF0000FF : 0xFF010101;
                 if (KeyPos == 1 || KeyPos == 4 || KeyPos == 6 || KeyPos == 9 || KeyPos == 11 || KeyPos == 13)
                     DrawList.AddRectFilled(WindowPos + new Vector2(((TotalOffset) * 15) - 3, 30), WindowPos + new Vector2(((TotalOffset) * 15) + 7, 70), wb);
                 else    
@@ -89,7 +129,7 @@ namespace JAIMaker_2.GUI
                 KeyPos++;
             }
 
-            for (int i=0; i < 88; i++)
+            for (int i=0; i < 0x88; i++)
             {
                 if (keyPressedCurrentFrame[i] != keyPressedLastFrame[i])
                     keyTrigger(i, keyPressedCurrentFrame[i]);
@@ -98,13 +138,14 @@ namespace JAIMaker_2.GUI
             ImGui.Dummy(new Vector2(0, 60f));
             ImGui.Text($"Last Key {lastPressedKey}");
             ImGui.Text($"DSP Tree Depth { JAIDSP2.JAIDSPVoiceManager.treeDepth}");
+            ImGui.ProgressBar(JAIDSP2.JAIDSPVoiceManager.treeDepth / 128f);
             if (ImGui.Button("Destroy DSP tree"))
                 JAIDSPVoiceManager.destroyAll();
             ImGui.SliderInt("DSP Emulation Ticks", ref JAIMAKER.DSPTickRate, 0, 48000);
 
         }
 
-        private JAIDSPVoice[] voices = new JAIDSPVoice[88];
+        private JAIDSPVoice[] voices = new JAIDSPVoice[0x88];
         private void keyTrigger(int key, bool state)
         {
             //Console.WriteLine($"Piano key pressed {key} - {state}");
@@ -121,7 +162,6 @@ namespace JAIMaker_2.GUI
             var velR = keyR.getVelocity(127);
             if (velR == null)
                 return;
-
 
             if (state==false)
             {
@@ -145,8 +185,6 @@ namespace JAIMaker_2.GUI
                 voices[key] = voice;
                 voice.setPitchMatrix(0, (float)Math.Pow(2, (key - snd.descriptor.BaseKey) / 12f) * insD.Pitch * velR.Pitch);
             }           
-
         }
-
     }
 }
