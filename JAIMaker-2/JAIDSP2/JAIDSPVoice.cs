@@ -145,6 +145,11 @@ namespace JAIMaker_2.JAIDSP2
             Destroy = true;
         }
 
+        public void setFXMatrix()
+        {
+
+
+        }
         public void setPitchMatrix(byte slot, float value)
         {
             if (slot > PITCHMATRIX_SIZE)

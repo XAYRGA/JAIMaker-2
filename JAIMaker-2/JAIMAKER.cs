@@ -32,14 +32,14 @@ namespace JAIMaker_2
             Console.WriteLine("/_/\\_\\__,_|\\__, |_|  \\__, |\\__,_|");
             Console.WriteLine("           |___/     |___/       ");
 
-#if DEBUG
+//#if DEBUG
             Console.ForegroundColor = ConsoleColor.Red;
             Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             Console.WriteLine("!JAIMAKER build in debug mode, do not push into release!");
             Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             Console.WriteLine("dump email: bugs@xayr.ga");
             Console.ForegroundColor = ConsoleColor.Gray;
-#endif
+//#endif
 
 
             JAIDSP2.JAIDSP.Init();
@@ -47,7 +47,7 @@ namespace JAIMaker_2
             WindowManager = new GUI.WindowManager();
         
           MidDevice = new MidiKeyboard();
-          
+          /*
           var W = File.OpenRead("jaiinit.aaf");
           var wR = new Be.IO.BeBinaryReader(W);
           var nr = new JAIM.AudioArchive();
@@ -63,6 +63,7 @@ namespace JAIMaker_2
             WindowManager.addWindow("PIANOBOY", new GUI.PianoBoy());
             WindowManager.addWindow("REMAPPER", new GUI.MidiRemapper());
             WindowManager.addWindow("IMPORTER", new GUI.MidiImportControl());
+       
 
             //*/            
 

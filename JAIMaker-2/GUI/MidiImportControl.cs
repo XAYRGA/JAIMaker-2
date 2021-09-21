@@ -72,9 +72,7 @@ namespace JAIMaker_2.GUI
                 ImGui.Text("No MIDI File loaded.");
                 return;
             } else
-            {
                 ImGui.TextColored(new System.Numerics.Vector4(0, 255, 0, 255), "MIDI Loaded");
-            }
 
             ImGui.Checkbox("Channel Program Assignment", ref JAIMAKER.Project.UseMidiOverride);
             if (JAIMAKER.Project.UseMidiOverride && JAIMAKER.Project.UseMidiRemap)
@@ -121,6 +119,26 @@ namespace JAIMaker_2.GUI
                 }
                 ImGui.Separator();
             }
+
+            ImGui.Columns(1);
+            ImGui.Separator();
+            ImGui.Button("Test BMS Sequence");
+            if (ImGui.Button("Export BMS Sequence"))
+            {
+                generateBMSSequence();
+            };
+        }
+
+
+        private void generateBMSSequence()
+        {
+            var w = File.OpenWrite("test.bms");
+            var bw = new Be.IO.BeBinaryWriter(w);
+
+            var Assembler = new Assembler.JV1GenericBMSAssembler();
+            Assembler.setOutput(bw);
+            var Generator = new MidiToBMSAssembler(JAIMAKER.MIDI, Assembler,JAIMAKER.Project);
+            Generator.processSequence();
         }
     }
 }

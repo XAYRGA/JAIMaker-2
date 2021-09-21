@@ -48,6 +48,60 @@ namespace JAIMaker_2
             return b;
         }
 
+        public static byte[] getVLQBytes(int number)
+        {
+
+
+            byte[] bytes = new byte[4];
+            int index = 0;
+            int buffer = number & 0x7F;
+
+            while ((number >>= 7) > 0)
+            {
+                buffer <<= 8;
+                buffer |= 0x80;
+                buffer += (number & 0x7F);
+            }
+            while (true)
+            {
+                bytes[index] = (byte)buffer;
+                index++;
+                if ((buffer & 0x80) > 0)
+                    buffer >>= 8;
+                else
+                    break;
+            }
+
+            var Length = index;
+            var Bytes = new byte[index];
+            Array.Copy(bytes, 0, Bytes, 0, Length);
+            return Bytes;
+        }
+
+
+        public static void writeVLQ(BeBinaryWriter bw, int value)
+        {
+            do
+            {
+                byte lower7bits = (byte)(value & 0x7f);
+                value >>= 7;
+                if (value > 0)
+                    lower7bits |= 128;
+                bw.Write(lower7bits);
+            } while (value > 0);
+        }
+
+        public static void writeInt24BE(BeBinaryWriter bw, int ta)
+        {
+            var b1 = (ta) & 0xFF;
+            var b2 = (ta >> 8) & 0xFF;
+            var b3 = (ta >> 16) & 0xFF;
+            bw.Write((byte)b3);
+            bw.Write((byte)b2);
+            bw.Write((byte)b1);
+        }
+
+
         public static int padToInt(int Addr, int padding)
         {
             var delta = (int)(Addr % padding);

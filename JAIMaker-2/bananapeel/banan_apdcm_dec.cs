@@ -10,7 +10,6 @@ namespace JAIMaker_2
     public static partial class bananapeel
     {
 
-
         public enum ADPCMFormat
         {
             FOUR_BIT = 0,

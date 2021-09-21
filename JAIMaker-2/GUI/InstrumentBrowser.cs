@@ -80,17 +80,14 @@ namespace JAIMaker_2.GUI
             ImGui.InputInt("Dest Note", ref remapCreateNote);
 
             if (ImGui.Button("Add Remap"))
-            { 
                 RemapProg[remapCreateIndex] = remapCreateNote;
-            }
+            
 
             ImGui.Columns(1);
 
             var keys = RemapProg.Keys.Select(x => x.ToString() + " -> " + RemapProg[x] ).ToArray();
 
             ImGui.ListBox("Remappings", ref remapSelectIndex, keys, keys.Length);
-
         }
-
     }
 }

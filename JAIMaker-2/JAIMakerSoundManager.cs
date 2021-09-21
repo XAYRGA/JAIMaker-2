@@ -99,6 +99,7 @@ namespace JAIMaker_2
                 return null;
             br.BaseStream.Position = info.WSYS_StartAddress;
             var adpcm_data = br.ReadBytes(info.WSYS_Length);
+            
             var pcm_data = bananapeel.ADPCMToPCM16(adpcm_data,bananapeel.ADPCMFormat.FOUR_BIT);
             Console.WriteLine("JAIWaveContainer::loadsound -> New JAIDSPSoundBuffer ");
             JAIDSPSoundBuffer buff = null;
