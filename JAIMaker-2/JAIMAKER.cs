@@ -15,7 +15,7 @@ namespace JAIMaker_2
         public static JAIMakerFile Project = new JAIMakerFile();
         public static JAIMakerSettings Settings;
         public static JAIMakerSoundManager SoundManager;
-        public static MidiKeyboard MidDevice;
+        public static MidiInput MidDevice;
         public static MidiSequence MIDI;
         public static GUI.WindowManager WindowManager;
         public static int DSPTickRate = 1024;
@@ -46,16 +46,16 @@ namespace JAIMaker_2
             Settings = JAIMakerSettings.load();
             WindowManager = new GUI.WindowManager();
         
-          MidDevice = new MidiKeyboard();
-          /*
-          var W = File.OpenRead("jaiinit.aaf");
-          var wR = new Be.IO.BeBinaryReader(W);
-          var nr = new JAIM.AudioArchive();
-          nr.loadFromStream(wR);
-          AAF = nr;
+            //MidDevice = new MidiInput();
+           
+            var W = File.OpenRead("jaiinit.aaf");
+            var wR = new Be.IO.BeBinaryReader(W);
+            var nr = new JAIM.AudioArchive();
+            nr.loadFromStream(wR);
+            AAF = nr;
 
-          SoundManager = new JAIMakerSoundManager(AAF);
-          SoundManager.createAWHandles("banks");
+            SoundManager = new JAIMakerSoundManager(AAF);
+            SoundManager.createAWHandles("banks");
           //*/
 
             WindowManager.init();
@@ -69,27 +69,33 @@ namespace JAIMaker_2
 
             while (true)
             {
-
-                var time_elapsed = DateTime.Now - TickSystemStart;
-                var target_dsp_ticks = time_elapsed.TotalSeconds * DSPTickRate;
-
                 WindowManager.update();
-
-                // We're 2 seconds behind, probably for a good reason. 
-                if (Math.Abs(target_dsp_ticks - currentDSPTicks) > DSPTickRate * 2)
-                {
-                  Console.WriteLine($"! DSP Out of sync {target_dsp_ticks} - {currentDSPTicks} > {DSPTickRate * 2} forcing sync emulatedTicks = {target_dsp_ticks}.");     
-                  currentDSPTicks = (int)target_dsp_ticks;
-                              
-                }
-
-                while (target_dsp_ticks > currentDSPTicks)
-                {
-                    JAIDSP2.JAIDSPVoiceManager.updateAll();
-                    currentDSPTicks++;
-                }
+                updateDSPEmulation();
             }
+
+    
             Console.ReadLine();
+        }
+
+        static void updateDSPEmulation()
+        {
+            var time_elapsed = DateTime.Now - TickSystemStart;
+            var target_dsp_ticks = time_elapsed.TotalSeconds * DSPTickRate;
+
+            WindowManager.update();
+
+            // We're 2 seconds behind, probably for a good reason. 
+            if (Math.Abs(target_dsp_ticks - currentDSPTicks) > DSPTickRate * 2)
+            {
+                Console.WriteLine($"! DSP Out of sync {target_dsp_ticks} - {currentDSPTicks} > {DSPTickRate * 2} forcing sync emulatedTicks = {target_dsp_ticks}.");
+                currentDSPTicks = (int)target_dsp_ticks;
+            }
+
+            while (target_dsp_ticks > currentDSPTicks)
+            {
+                JAIDSP2.JAIDSPVoiceManager.updateAll();
+                currentDSPTicks++;
+            }
         }
     }
 }

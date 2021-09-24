@@ -176,5 +176,10 @@ namespace JAIMaker_2.Assembler
         {
             throw new NotImplementedException();
         }
+
+        public override void writeVolume(byte volume)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

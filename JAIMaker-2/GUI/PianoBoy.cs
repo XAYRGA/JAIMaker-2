@@ -64,14 +64,21 @@ namespace JAIMaker_2.GUI
                 var ins = bnk.instruments[JAIMAKER.Project.SelectedInstrument];
                 if (ins == null)
                     return;
-                insD = (JAIM.JStandardInstrumentv1)ins;
-                keyR = insD.getKeyRegion(0);    
+                if (ins.Percussion == false)
+                {
+                    insD = (JAIM.JStandardInstrumentv1)ins;
+                    keyR = insD.getKeyRegion(0);
+                } else
+                {
+                    insD = null;
+                    keyR = null;
+                }
              }
 
           
             for (int i=0; i< 0x88; i++)
             {
-                if (insD!=null)
+                if (insD!=null && !insD.Percussion)
                 {
                     var nextKeyR = insD.getKeyRegion(i);
                     if (keyR!=nextKeyR)
@@ -99,7 +106,7 @@ namespace JAIMaker_2.GUI
                     keyPressedCurrentFrame[i] = false;
                     var wb = regionColors[currentRegion];
 
-                    if (JAIMAKER.MidDevice.keyState[i])
+                    if (JAIMAKER.MidDevice!=null && JAIMAKER.MidDevice.keyState[i])
                         wb = 0xFF00FF00;
                     if (d2DBoxCollideNoTangent(WindowPos + new Vector2(TotalOffset * 15, 30), WindowPos + new Vector2(TotalOffset * 15 + 15, 90), ImGui.GetMousePos()) && ImGui.IsMouseDown(ImGuiMouseButton.Left)  && pressedBlackKey==-1)
                     {
@@ -121,7 +128,7 @@ namespace JAIMaker_2.GUI
             {
                 if (KeyPos == 13)
                     KeyPos = 1;
-                var wb = (keyPressedCurrentFrame[i] || JAIMAKER.MidDevice.keyState[i] ) ? 0xFF0000FF : 0xFF010101;
+                var wb = (keyPressedCurrentFrame[i] || (JAIMAKER.MidDevice==null? false : JAIMAKER.MidDevice.keyState[i])) ? 0xFF0000FF : 0xFF010101;
                 if (KeyPos == 1 || KeyPos == 4 || KeyPos == 6 || KeyPos == 9 || KeyPos == 11 || KeyPos == 13)
                     DrawList.AddRectFilled(WindowPos + new Vector2(((TotalOffset) * 15) - 3, 30), WindowPos + new Vector2(((TotalOffset) * 15) + 7, 70), wb);
                 else    
@@ -154,14 +161,7 @@ namespace JAIMaker_2.GUI
             var ins = bnk.instruments[JAIMAKER.Project.SelectedInstrument];
             if (ins == null)
                 return;
-
-            var insD = (JAIM.JStandardInstrumentv1)ins;
-            var keyR = insD.getKeyRegion(key);
-            if (keyR == null)
-                return;
-            var velR = keyR.getVelocity(127);
-            if (velR == null)
-                return;
+      
 
             if (state==false)
             {
@@ -173,17 +173,52 @@ namespace JAIMaker_2.GUI
                 }
             } else
             {
-                var snd = JAIMAKER.SoundManager.loadSound((byte)velR.WSYSID, (short)velR.WaveID);
-                if (snd==null || snd.buffer==null)
+
+                if (ins.Percussion == false)
                 {
-                    Console.WriteLine($"PianoBoy::keyTrigger failed to create sound buffer for bnk.{velR.WSYSID} wav.{velR.WaveID}");
-                    return;
+                    var insD = (JAIM.JStandardInstrumentv1)ins;
+                    var keyR = insD.getKeyRegion(key);
+                    if (keyR == null)
+                        return;
+                    var velR = keyR.getVelocity(127);
+                    if (velR == null)
+                        return;
+                    var snd = JAIMAKER.SoundManager.loadSound((byte)velR.WSYSID, (short)velR.WaveID);
+                    if (snd == null || snd.buffer == null)
+                    {
+                        Console.WriteLine($"PianoBoy::keyTrigger failed to create sound buffer for bnk.{velR.WSYSID} wav.{velR.WaveID}");
+                        return;
+                    }
+                    var voice = new JAIDSPVoice(snd.buffer, insD);
+                    JAIDSPVoiceManager.addVoice(voice);
+                    voice.play();
+                    voices[key] = voice;
+                    voice.setPitchMatrix(0, (float)Math.Pow(2, (key - snd.descriptor.BaseKey) / 12f) * insD.Pitch * velR.Pitch);
+                } else
+                {
+                    if (key >= 100)
+                        return;
+                    var insD = (JAIM.JPercussion)ins;
+                    var prcE = insD.Sounds[key];                   
+                    if (prcE == null)
+                        return;
+                    var velR = prcE.getVelocity(127);
+                    if (velR == null)
+                        return;
+                    var snd = JAIMAKER.SoundManager.loadSound((byte)velR.WSYSID, (short)velR.WaveID);
+                    if (snd == null || snd.buffer == null)
+                    {
+                        Console.WriteLine($"PianoBoy::keyTrigger failed to create sound buffer for bnk.{velR.WSYSID} wav.{velR.WaveID}");
+                        return;
+                    }
+                    var voice = new JAIDSPVoice(snd.buffer, insD);
+                    JAIDSPVoiceManager.addVoice(voice);
+                    voice.play();
+                    voices[key] = voice;
+                    voice.setPitchMatrix(0, velR.Pitch);
+
                 }
-                var voice = new JAIDSPVoice(snd.buffer,insD);
-                JAIDSPVoiceManager.addVoice(voice);
-                voice.play();
-                voices[key] = voice;
-                voice.setPitchMatrix(0, (float)Math.Pow(2, (key - snd.descriptor.BaseKey) / 12f) * insD.Pitch * velR.Pitch);
+
             }           
         }
     }

@@ -87,7 +87,9 @@ namespace JAIMaker_2.Assembler
 
         public override void writePitchBend(short bend)
         {
-            throw new NotImplementedException();
+            output.Write((byte)0x9C);
+            output.Write((byte)1);
+            output.Write(bend);
         }
 
         public override void writePort(byte port, byte value)
@@ -129,6 +131,11 @@ namespace JAIMaker_2.Assembler
         public override void writeTimedEvent(byte param, short time, short value)
         {
             //throw new NotImplementedException();
+        }
+
+        public override void writeVolume(byte volume)
+        {
+            throw new NotImplementedException();
         }
 
         public override void writeWait(int delay)

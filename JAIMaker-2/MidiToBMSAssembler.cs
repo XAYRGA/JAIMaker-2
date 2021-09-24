@@ -227,10 +227,16 @@ namespace JAIMaker_2
                 else if (currentEvent is MidiSharp.Events.Voice.PitchWheelVoiceMidiEvent)
                 {
                     var ev = (MidiSharp.Events.Voice.PitchWheelVoiceMidiEvent)currentEvent;
-                    var midRange = (float)(ev.Position - 0x1FFF);
-                    var bmsPitchValue = (midRange / 0x1FFF) ; // -1 - 1
-                    Assembler.writePitchBend((short)(bmsPitchValue * 0x7FFF));
-             
+                    Console.WriteLine(ev.Position);
+                    var midRange = (float)(ev.Position - 64); // 0 is center
+                    var bmsPitchValue = (midRange / 64) ; // Bend Value 
+                    var FrequencyRatio = Math.Pow(2, bmsPitchValue);
+                    // This would make sense if this value weren't signed.
+                    // (short)( (FrequencyRatio -1)* 0x7FFF)
+                    // Unfortunately, 2^0 = 1 , then 1 * 0x7FFF is in fact, 0x7FFF.
+                    // Subtract 0x7FFF as a centerpoint so the unsigned value gets encoded as 0???
+                    Assembler.writePitchBend((short)((((FrequencyRatio - 1)/2) * 0x8000))); // how 'bout that.
+                    //Console.WriteLine((short)(FrequencyRatio * 0x7FFF));
                 } 
             }
             Assembler.writeWait((int)(lastDelta - totalDelta)); // Synchronize the ending of all tracks

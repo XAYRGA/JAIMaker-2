@@ -420,6 +420,8 @@ namespace JAIMaker_2.JAIM
                 wr.Write((short)(Sounds[i] != null ? Sounds[i].uflag2 : 0));
             wr.Write(new byte[0x50]);
         }
+
+
     }
 
 
@@ -464,6 +466,14 @@ namespace JAIMaker_2.JAIM
             wr.Write(Velocities.Length);
             for (int i = 0; i < Velocities.Length; i++)
                 wr.Write(Velocities[i].mBaseAddress);
+        }
+
+        public JVelocityRegionv1 getVelocity(int key)
+        {
+            for (int i = 0; i < Velocities.Length; i++)
+                if (Velocities[i].Velocity >= key)
+                    return Velocities[i];
+            return null;
         }
     }
 

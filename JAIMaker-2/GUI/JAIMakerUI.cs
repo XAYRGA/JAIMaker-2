@@ -152,6 +152,15 @@ namespace JAIMaker_2.GUI
                         winDict.Value.Visible = !winDict.Value.Visible;
                 ImGui.EndMenu();
             }
+
+
+
+            if (ImGui.BeginMenu("Extras"))
+            {
+                if (ImGui.MenuItem("MIDI Input"))
+                    addWindow("MIDIBOY", new GUI.MidiInputControl());
+                ImGui.EndMenu();
+            }
             ImGui.EndMainMenuBar();
 
 

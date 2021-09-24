@@ -19,6 +19,24 @@ namespace JAIMaker_2.JAIM
         public JInstrumentBankv1[] InstrumentBanks;
         public WaveSystem[] WaveSystems;
 
+
+        public JInstrumentBankv1 getBankID(int id)
+        {
+            for (int i = 0; i < InstrumentBanks.Length; i++)
+                if (InstrumentBanks[i] != null & InstrumentBanks[i].globalID == id)
+                    return InstrumentBanks[i];
+            return null;
+        }
+
+
+        public WaveSystem getWaveID(int id)
+        {
+            for (int i = 0; i < WaveSystems.Length; i++)
+                if (WaveSystems[i] != null & WaveSystems[i].Id == id)
+                    return WaveSystems[i];
+            return null;
+        }
+
         private int wsCount = 0;
         private int bankCount = 0;
 

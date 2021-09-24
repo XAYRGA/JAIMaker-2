@@ -262,6 +262,7 @@
     <Compile Include="beio\Empty.cs" />
     <Compile Include="beio\Error.cs" />
     <Compile Include="beio\Reinterpret.cs" />
+    <Compile Include="GUI\MidiInputControl.cs" />
     <Compile Include="MidiToBMSAssembler.cs" />
     <Compile Include="GUI\DirectoryBrowser.cs" />
     <Compile Include="GUI\GuiController.cs" />
@@ -285,7 +286,7 @@
     <Compile Include="JAIM\WaveSystem.cs" />
     <Compile Include="util.cs" />
     <Compile Include="JAIMAKER.cs" />
-    <Compile Include="MidiKeyboard.cs" />
+    <Compile Include="MidiInput.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GUI\JAIMakerUI.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">

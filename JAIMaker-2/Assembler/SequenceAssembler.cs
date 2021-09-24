@@ -40,6 +40,7 @@ namespace JAIMaker_2.Assembler
         public abstract void writeParentPort(byte port, byte value);
         public abstract void readParentPort(byte port, byte dest_reg);
         public abstract void writePitchBend(short bend);
+        public abstract void writeVolume(byte volume);
 
     }
 }
