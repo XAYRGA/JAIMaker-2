@@ -82,8 +82,6 @@ namespace JAIMaker_2
             var time_elapsed = DateTime.Now - TickSystemStart;
             var target_dsp_ticks = time_elapsed.TotalSeconds * DSPTickRate;
 
-            WindowManager.update();
-
             // We're 2 seconds behind, probably for a good reason. 
             if (Math.Abs(target_dsp_ticks - currentDSPTicks) > DSPTickRate * 2)
             {

@@ -80,6 +80,11 @@ namespace JAIMaker_2.Assembler
             util.writeInt24BE(output, address);
         }
 
+        public override void writePanning(byte volume)
+        {
+            throw new NotImplementedException();
+        }
+
         public override void writeParentPort(byte port, byte value)
         {
             throw new NotImplementedException();
@@ -135,7 +140,9 @@ namespace JAIMaker_2.Assembler
 
         public override void writeVolume(byte volume)
         {
-            throw new NotImplementedException();
+            output.Write((byte)0x96); // U8 NODUR
+            output.Write((byte)0); // 0 is volume
+            output.Write(volume); // volume value
         }
 
         public override void writeWait(int delay)

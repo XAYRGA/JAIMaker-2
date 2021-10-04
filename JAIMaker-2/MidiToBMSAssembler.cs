@@ -140,7 +140,6 @@ namespace JAIMaker_2
                 Assembler.writeOpenTrack((byte)trk, 0);
             }
 
-
             for (int trk = 0; trk < MidiSeq.Tracks.Count; trk++) // 
             {
                 voiceLookup = new int[7];
@@ -230,14 +229,25 @@ namespace JAIMaker_2
                     Console.WriteLine(ev.Position);
                     var midRange = (float)(ev.Position - 64); // 0 is center
                     var bmsPitchValue = (midRange / 64) ; // Bend Value 
-                    var FrequencyRatio = Math.Pow(2, bmsPitchValue);
+                    var FrequencyRatio = Math.Pow(2, bmsPitchValue * 2);
                     // This would make sense if this value weren't signed.
                     // (short)( (FrequencyRatio -1)* 0x7FFF)
                     // Unfortunately, 2^0 = 1 , then 1 * 0x7FFF is in fact, 0x7FFF.
                     // Subtract 0x7FFF as a centerpoint so the unsigned value gets encoded as 0???
-                    Assembler.writePitchBend((short)((((FrequencyRatio - 1)/2) * 0x8000))); // how 'bout that.
+                    Assembler.writePitchBend((short)((((FrequencyRatio - 1)) * 0x8000))); // how 'bout that.
                     //Console.WriteLine((short)(FrequencyRatio * 0x7FFF));
-                } 
+                }  else if (currentEvent is MidiSharp.Events.Voice.ControllerVoiceMidiEvent)
+                {
+                    var ev = (MidiSharp.Events.Voice.ControllerVoiceMidiEvent)currentEvent;
+                    if (ev.Number == (byte)Controller.VolumeCourse)
+                        Assembler.writeVolume(ev.Value);
+                    else if (ev.Number == (byte)Controller.VolumeFine)
+                        Assembler.writeVolume(ev.Value);
+                    else if (ev.Number == (byte)Controller.PanPositionCourse)
+                        Assembler.writePanning(ev.Value);
+                    else if (ev.Number == (byte)Controller.PanPositionFine)
+                        Assembler.writePanning(ev.Value);
+                }
             }
             Assembler.writeWait((int)(lastDelta - totalDelta)); // Synchronize the ending of all tracks
             Assembler.writeFinish(); // close track.

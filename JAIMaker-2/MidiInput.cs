@@ -31,9 +31,7 @@ namespace JAIMaker_2
             for (int i = 0; i < Channels.Length; i++) {
                 Channels[i] = new JAIProgramRemap();
                 Voices[i] = new Dictionary<int, JAIDSPVoice>();
-
             }
-
             Ready = true;
         }
 
@@ -50,6 +48,22 @@ namespace JAIMaker_2
                 keyTrigger(ev.NoteNumber, false, ev.Velocity, ev.Channel);
             }
         }
+
+
+        public int getNoteRemap(int bnk, int proj, byte not)
+        {
+            Dictionary<int, Dictionary<int, int>> bankMap = null;
+            if (!JAIMAKER.Project.ProgramRemap.TryGetValue(bnk, out bankMap))
+                return not;
+            Dictionary<int, int> programRemap = null;
+            if (!bankMap.TryGetValue(proj, out programRemap))
+                return not;
+            int remapNot = 0;
+            if (!programRemap.TryGetValue(not, out remapNot))
+                return not;
+            return remapNot;
+        }
+
 
         private void keyTrigger(int key, bool state, int velocity, int channel)
         {
@@ -75,13 +89,16 @@ namespace JAIMaker_2
                 return;
             var ins = bank.instruments[bankProgConfig.program];
 
+            var trueKey = getNoteRemap(bankProgConfig.bank, bankProgConfig.program, (byte)key);
+
+
             if (ins == null)
                 return;
            
             if (ins.Percussion==false)
             {
                 var insD = (JAIM.JStandardInstrumentv1)ins;
-                var keyR = insD.getKeyRegion(key);
+                var keyR = insD.getKeyRegion(trueKey);
                 if (keyR == null)
                     return;
                 var velR = keyR.getVelocity(velocity);
@@ -98,14 +115,17 @@ namespace JAIMaker_2
                 JAIDSPVoiceManager.addVoice(voice);
                 voice.play();
                 voiceContainer[key] = voice;
-                voice.setPitchMatrix(0, (float)Math.Pow(2, (key - snd.descriptor.BaseKey) / 12f) * insD.Pitch * velR.Pitch);
-                voice.setVolMatrix(0, velocity / 128f);
-            } else
+
+                voice.setPitchMatrix(0, (float)Math.Pow(2, (trueKey - snd.descriptor.BaseKey) / 12f) * insD.Pitch * velR.Pitch);
+                voice.setVolMatrix(0, (float)(velR.Volume *  (velocity / 128f) * insD.Volume));
+                
+            }
+            else
             {
                 var insD = (JAIM.JPercussion)ins;
                 if (key >= 100)
                     return; // no
-                var percE = insD.Sounds[key];
+                var percE = insD.Sounds[trueKey];
                 if (percE == null)
                     return;
                 var velR = percE.getVelocity(velocity);
@@ -122,7 +142,8 @@ namespace JAIMaker_2
                 voice.play();
                 voiceContainer[key] = voice;
                 voice.setPitchMatrix(0, velR.Pitch);
-                voice.setVolMatrix(0, velR.Volume * (velocity / 128f));
+
+                voice.setVolMatrix(0, (float)(velR.Volume * (velocity / 128f)));
             }
         }
         ~MidiInput()

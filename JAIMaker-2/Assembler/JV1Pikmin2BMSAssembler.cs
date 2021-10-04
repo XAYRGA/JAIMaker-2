@@ -82,6 +82,11 @@ namespace JAIMaker_2.Assembler
             util.writeInt24BE(output, address);
         }
 
+        public override void writePanning(byte volume)
+        {
+            throw new NotImplementedException();
+        }
+
         public override void writeParentPort(byte port, byte value)
         {
             throw new NotImplementedException();

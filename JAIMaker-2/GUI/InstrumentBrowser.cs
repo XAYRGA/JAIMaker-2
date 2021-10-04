@@ -61,8 +61,8 @@ namespace JAIMaker_2.GUI
             ImGui.Separator();
             Dictionary<int, Dictionary<int, int>> RemapBank;
             Dictionary<int, int> RemapProg;
-            if (!JAIMAKER.Project.ProgramRemap.TryGetValue(JAIMAKER.Project.SelectedBank, out RemapBank))
-                RemapBank = (JAIMAKER.Project.ProgramRemap[JAIMAKER.Project.SelectedBank] = new Dictionary<int, Dictionary<int, int>>());      
+            if (!JAIMAKER.Project.ProgramRemap.TryGetValue(JAIMAKER.Project.SelectedBankID, out RemapBank))
+                RemapBank = (JAIMAKER.Project.ProgramRemap[JAIMAKER.Project.SelectedBankID] = new Dictionary<int, Dictionary<int, int>>());      
 
             if (!RemapBank.TryGetValue(JAIMAKER.Project.SelectedInstrument, out RemapProg))
             {
